@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+
+"""
+Command Line Interface for getalltweets.
+This gives you a nice CLI and shows you how the classes interact
+"""
+
+import sys
+
+from argparse import ArgumentParser
+from http import cookiejar
+
+
+from getalltweets.criteria import TweetCriteria
+from getalltweets.parser import TweetParser
+from getalltweets.scraper import TweetScraper
+
+
+def commandline(args):
+    """
+    Wrapper for commandline arguments
+
+    :param args: Cli arguments via sys.argv
+    :return: Returns fully configured ArgumentParser
+    :rtype: argparse.ArgumentParser
+    """
+
+    parser = ArgumentParser(description='CLI for getalltweets')
+
+    parser.add_argument("-u", "--username",
+                        help="Username")
+
+    parser.add_argument("-l", "--language",
+                        help="language")
+
+    parser.add_argument("-q", "--query",
+                        help="Query")
+
+    parser.add_argument("-n", "--number", type=int,
+                        help="Number of Tweets. 0 means all")
+
+    parser.set_defaults(verbose=False, username=None, query=None, number=100)
+
+    return parser.parse_args(args)
+
+
+def main(args):
+    """
+    Main Method, where the magic happens
+
+    :param args: argparse Object containing the arguments
+    """
+
+    # Where we store all of the results
+    tweets = []
+
+    # Initital Cursor is empty, gets changed by the Scraper
+    cursor = ''
+
+    # For storing all them delicious Cookies from Twitter
+    cookie = cookiejar.CookieJar()
+
+    # Does the heavy HTTP lifting
+    scraper = TweetScraper()
+
+    # Check if cli arguments are OK
+    if args.username is None and args.query is None:
+        print("Username or Query missing")
+        sys.exit(1)
+
+    # Setting up the criteria for the Tweets to get
+    criteria = TweetCriteria(
+        username=args.username,
+        query=args.query,
+        number_of_tweets=args.number,
+        language=args.language
+    )
+
+    # Main Loop where the cursor gets moved as we collect all tweets
+    while True:
+        twitter_response = scraper.scrap(criteria, cursor, cookie)
+        empty_response = len(twitter_response['items_html'].strip()) == 0
+
+        if empty_response:
+            print('HTTP response is empty')
+            break
+
+        tweets = tweets + TweetParser.parse(twitter_response)
+
+        if not tweets:
+            print('No Tweets')
+            break
+
+        # Moving the cursor for next call
+        cursor = twitter_response['min_position']
+
+        # TODO: See if this works and truncate tweets to args.number
+        enough_tweets = args.number > 0 and len(tweets) >= args.number
+        if enough_tweets:
+            break
+
+    # TODO: How to handle output
+    for tweet in tweets:
+        print(tweet)
+
+    sys.exit(0)
+
+
+if __name__ == '__main__':
+    ARGS = commandline(sys.argv[1:])
+    main(ARGS)
