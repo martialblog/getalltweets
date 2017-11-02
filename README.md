@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/martialblog/getalltweets.svg?branch=master)](https://travis-ci.org/martialblog/getalltweets)
+
 # getalltweets
 
 Python Module to scrap all Tweets of a specific user or topic, without using the Twitter API.
