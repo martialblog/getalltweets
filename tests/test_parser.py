@@ -63,7 +63,7 @@ def test_tweetcriteria_dict(response):
 
     tweet_dict = parser.create_dict(tweet_pyquery)
 
-    # TODO: Why is the lang 'und' ?
+    # und means undetermined language
     excpected_dict = {'created_at': 1496385758,
                       'text': 'https:// youtu.be/XAi3VTSdTxU @ realDonaldTrump',
                       'lang': 'und',

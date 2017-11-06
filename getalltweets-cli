@@ -36,7 +36,7 @@ def commandline(args):
                         help="Query")
 
     parser.add_argument("-n", "--number", type=int,
-                        help="Number of Tweets. 0 means all")
+                        help="Number of Tweets. 0 means all. Default 100")
 
     parser.set_defaults(verbose=False, username=None, query=None, number=100)
 
@@ -94,7 +94,7 @@ def main(args):
         # Moving the cursor for next call
         cursor = twitter_response['min_position']
 
-        # TODO: See if this works and truncate tweets to args.number
+        # TODO: Truncate to args.number
         enough_tweets = args.number > 0 and len(tweets) >= args.number
         if enough_tweets:
             break
