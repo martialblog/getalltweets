@@ -13,6 +13,26 @@ pip3 install -r requirements.txt
 
 # Development
 
+## Fixtures
+
+To install all fixtures for development:
+
 ```bash
 pip3 install -r requirements-dev.txt
+```
+
+## Unit Test
+
+To run the Unit Tests:
+
+```bash
+pytest -v
+```
+
+## Pylint
+
+To run pylint:
+
+```bash
+pylint getalltweets/
 ```
