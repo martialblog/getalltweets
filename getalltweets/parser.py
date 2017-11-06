@@ -41,19 +41,19 @@ class TweetParser:
 
         try:
             tweets_parsed = PyQuery(html['items_html'])('div.js-stream-tweet')
+
             has_tweets = len(tweets_parsed) > 0
+            if not has_tweets:
+                return final_tweets
+
         except Exception as exception:
             print('Failed to open parse HTML')
             print(exception)
-
             return final_tweets
 
-        if not has_tweets:
-            return final_tweets
-
-        for tweet in tweets_parsed('div.js-stream-tweet'):
-            tweet_parsed = PyQuery(tweet)
-            tweet_dict = TweetParser.create_dict(tweet_parsed)
+        for tweet in tweets_parsed:
+            tweet_pyquery = PyQuery(tweet)
+            tweet_dict = TweetParser.create_dict(tweet_pyquery)
             final_tweets.append(tweet_dict)
 
         return final_tweets
