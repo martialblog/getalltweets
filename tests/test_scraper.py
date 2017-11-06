@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
+from urllib import error
 
-import pytest
 import unittest.mock as mock
-from http import cookiejar
+import pytest
 
 # Package Imports
 import getalltweets.scraper as ts
@@ -71,7 +71,8 @@ def test_tweetscraper_build_headers():
     assert(exp_headers == act_headers)
 
 @mock.patch('urllib.request.build_opener')
-def test_tweetscraper_scrap(mock_request, criteria):
+@mock.patch('urllib.request.HTTPCookieProcessor')
+def test_tweetscraper_scrap(mock_cookie, mock_request, criteria):
     """
     Scrap Function
     """
@@ -86,7 +87,41 @@ def test_tweetscraper_scrap(mock_request, criteria):
 
     scraper = ts.TweetScraper()
 
-    cookie = cookiejar.CookieJar()
+    cookie = 'CookieJar'
     cursor = ''
 
     scraper.scrap(criteria, cursor, cookie)
+
+    assert(('Host', 'twitter.com') in mock_opener.addheaders)
+
+    mock_cookie.assert_called_once_with('CookieJar')
+    mock_request.assert_called_once_with(mock_cookie())
+
+    mock_opener.open.assert_called_with('https://twitter.com/i/search/timeline?f=tweets&q=%20from%3Azweipunknull%20foo%20bar&src=typd&lang=de&max_position=')
+
+
+@mock.patch('urllib.request.build_opener')
+@mock.patch('urllib.request.HTTPCookieProcessor')
+def test_tweetscraper_scrap_error(mock_cookie, mock_request, criteria):
+    """
+    Scrap Function
+    """
+
+
+    mock_opener = mock.MagicMock()
+    mock_response = mock.MagicMock()
+
+    mock_response.read.return_value = '{}'.encode('utf8')
+    mock_opener.open.return_value = mock_response
+    mock_opener.open.side_effect = error.HTTPError('url', 1, 'msg', 'hdr', mock.MagicMock())
+
+    mock_request.return_value = mock_opener
+
+    scraper = ts.TweetScraper()
+
+    cookie = 'CookieJar'
+    cursor = ''
+
+    actual = scraper.scrap(criteria, cursor, cookie)
+
+    assert(actual is None)
