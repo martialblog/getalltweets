@@ -3,11 +3,24 @@
 
 import pytest
 import unittest.mock as mock
+from http import cookiejar
 
 # Package Imports
 import getalltweets.scraper as ts
 import getalltweets.criteria as tc
 
+
+@pytest.fixture
+def criteria():
+
+    tweet_crit = tc.TweetCriteria(
+        username='zweipunknull',
+        query='foo bar',
+        number_of_tweets=42,
+        language='de'
+    )
+
+    return tweet_crit
 
 def test_tweetscraper():
     """
@@ -57,10 +70,23 @@ def test_tweetscraper_build_headers():
 
     assert(exp_headers == act_headers)
 
-@mock.patch('urllib.request')
-def test_tweetscraper_scrap(mock_request):
+@mock.patch('urllib.request.build_opener')
+def test_tweetscraper_scrap(mock_request, criteria):
     """
     Scrap Function
     """
 
-    tweet_scrap = ts.TweetScraper()
+    mock_opener = mock.MagicMock()
+    mock_response = mock.MagicMock()
+
+    mock_response.read.return_value = '{}'.encode('utf8')
+    mock_opener.open.return_value = mock_response
+
+    mock_request.return_value = mock_opener
+
+    scraper = ts.TweetScraper()
+
+    cookie = cookiejar.CookieJar()
+    cursor = ''
+
+    scraper.scrap(criteria, cursor, cookie)
