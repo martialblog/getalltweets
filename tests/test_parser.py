@@ -5,6 +5,7 @@ import os
 import pickle
 import pytest
 import pyquery
+import lxml
 
 # Package Imports
 import getalltweets.parser as tp
@@ -23,6 +24,20 @@ def response():
 
     return resp
 
+@pytest.fixture
+def failed_response():
+    """
+    Example Twitter Response
+    """
+
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    file_path = os.path.join(dir_path, 'fail.pickle')
+
+    with open(file_path, 'rb') as response_file:
+        resp = pickle.load(response_file)
+
+    return resp
+
 def test_tweetcriteria_parse_typecheck(response):
     """
     Test that parse type is OK and all tweets are returned
@@ -35,7 +50,6 @@ def test_tweetcriteria_parse_typecheck(response):
     assert(len(actual_parse) == 20)
     assert(isinstance(actual_parse, list))
     assert(isinstance(actual_parse[0], dict))
-
 
 def test_tweetcriteria_dict(response):
     """
@@ -57,3 +71,23 @@ def test_tweetcriteria_dict(response):
                       'id': '870531084437606402'}
 
     assert(excpected_dict == tweet_dict)
+
+def test_tweetcriteria_empty(failed_response):
+    """
+    Test format of parse
+    """
+
+    parser = tp.TweetParser()
+    actual_parse = parser.parse(failed_response)
+
+    assert(actual_parse == [])
+
+def test_tweetcriteria_exception(capsys):
+    """
+    Test what happens when pyquery fails to parse
+    """
+
+    parser = tp.TweetParser()
+
+    actual_parse = parser.parse('')
+    assert(actual_parse == [])

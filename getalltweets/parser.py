@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+
 """
 Parses the HTML Response from the Twitter Search page
 """
 
+from sys import stderr
 from pyquery import PyQuery
 
 
@@ -47,7 +49,7 @@ class TweetParser:
                 return final_tweets
 
         except Exception as exception:
-            print('Failed to open parse HTML')
+            print('Failed to parse HTML', file=stderr)
             print(exception)
             return final_tweets
 
