@@ -4,6 +4,7 @@
 Handles the HTTP Requests to the Twitter Search Query
 """
 
+from sys import stderr
 from urllib import request, parse, error
 from json import loads
 
@@ -97,8 +98,8 @@ class TweetScraper:
             response = opener.open(url)
             json_response = response.read()
         except error.HTTPError as exception:
-            print('Failed to open {}'.format(self.baseurl))
-            print(exception)
+            print('Failed to open {}'.format(self.baseurl), file=stderr)
+            print(exception, file=stderr)
 
             return None
 

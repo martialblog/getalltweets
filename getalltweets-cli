@@ -9,6 +9,7 @@ import sys
 
 from argparse import ArgumentParser
 from http import cookiejar
+from json import dumps
 
 from getalltweets.criteria import TweetCriteria
 from getalltweets.parser import TweetParser
@@ -82,26 +83,24 @@ def main(args):
         empty_response = len(twitter_response['items_html'].strip()) == 0
 
         if empty_response:
-            print('HTTP response is empty')
+            print('HTTP response is empty', file=sys.stderr)
             break
 
         tweets = tweets + TweetParser.parse(twitter_response)
 
         if not tweets:
-            print('No Tweets')
+            print('No Tweets', file=sys.stderr)
             break
 
         # Moving the cursor for next call
         cursor = twitter_response['min_position']
 
-        # TODO: Truncate to args.number
         enough_tweets = args.number > 0 and len(tweets) >= args.number
         if enough_tweets:
             break
 
-    # TODO: How to handle output
     for tweet in tweets:
-        print(tweet)
+        print(dumps(tweet))
 
     sys.exit(0)
 
