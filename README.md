@@ -5,6 +5,15 @@
 
 Python Module to scrap all Tweets of a specific user or topic, without using the Twitter API.
 
+# Examples
+
+CLI with stdout:
+
+```bash
+# Returns one Tweet per line
+getalltweets-cli --username sometwitterino > sometwitterino.ldjson
+```
+
 # Setup
 
 ```bash
