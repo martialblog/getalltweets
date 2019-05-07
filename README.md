@@ -14,6 +14,16 @@ CLI with stdout:
 getalltweets-cli --username sometwitterino > sometwitterino.ldjson
 ```
 
+CLI for multiple users:
+
+```bash
+for user in $(cat "users.txt")
+do
+    echo "Getting Tweets for $user"
+    python3 getalltweets-cli -n 123 --username $user > tweets/$user.ldjson
+done
+```
+
 # Setup
 
 ```bash
